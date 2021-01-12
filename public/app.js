@@ -9,12 +9,6 @@ const jsonHeaders = {
 	'Content-Type': 'application/json'
 };
 
-/*var Bottleneck = require('bottleneck');
-const limiter = new Bottleneck({
-  maxConcurrent: 5,
-  minTime: 500,
-});*/
-
 // TODO: Break the page if this returns undefined, redirect to main URL
 getSpotifyUsername();
 getPlaylists();
@@ -90,7 +84,7 @@ function getCheckedPlaylistInfo() {
 }
 
 /** 
- * Once the "cleanify playlist button" is pressed, this function
+ * Once the "Cleanify Playlist" button is pressed, this function
  * creates a new playlist based off of the existing playlists name, and
  * it displays the tracks of the original playlist and shows which tracks
  * are explicit.
@@ -111,24 +105,27 @@ function createCleanifiedPlaylist() {
 	.then(data => getAndDisplayTracks(checkedPlaylistID, data.id));
 }
 
-/** Gets the tracks from the original playlist */
+/**
+ * Gets the tracks from the original playlist.
+ * @param {string} checkedPlaylistID 
+ * @param {string} newPlaylistID 
+ */
 function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 	fetch(`https://api.spotify.com/v1/playlists/${checkedPlaylistID}/tracks`, {
 		headers: jsonHeaders
 	})
 	.then(res => res.json())
 	.then(data => {
-		console.log("getAndDisplayTracks data:", data);
-
+		// TODO: Figure out where the hell the undefined text is coming from and
+		// what it is supposed to say
 		let cleanTracks = [];
-		let tracksInPlaylist;
+		let tracksInPlaylist, pageNumber = 1;
 		data.items.forEach(function(names, index) {
-			if (!names.track.explicit) {
-				// TODO: Make sure explicit songs are still being processed
+			if (!names.track.explicit)
 				cleanTracks.push('spotify:track:' + names.track.id);
-			}
 
 			// TODO: Stop this at 20, then have a "Show more..." pagination button
+			if (index % 20 == 0) pageNumber++;
 			tracksInPlaylist += `
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" name="trackTitles" trackId="${names.track.id}" explicit="${names.track.explicit}">
@@ -143,128 +140,122 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 			'numberOfSongsBeforeCleanified'
 		).innerHTML = `(${data.total} total)`;
 
-		addTracksIntoCleanfiedPlaylist(newPlaylistID, cleanTracks);
+		// TODO: Make sure less than 100, or break into batches first
+		addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
 		findCleanVersionOfSongs(checkedPlaylistID, newPlaylistID);
-		getAfterCleanified(newPlaylistID);
-
-		// Display "After Cleanified"
 	});
 }
 
-function getAfterCleanified(newPlaylistID) {
-	setTimeout(function() {
-		// NOTE, implicit URL is as follows:
-		// https://api.spotify.com/v1/playlists/71GcVkQyHGke5ZIoOto5uI/tracks?offset=0&limit=100
-		// So I can apply the pagination feature here as well.
-		fetch(`https://api.spotify.com/v1/playlists/${newPlaylistID}/tracks`, {
-			headers: jsonHeaders
-		})
-		.then(res => res.json())
-		.then(data => {
-			console.log("getAfterCleanified data:", data);
-
-			// TODO: Also paginate, same as getAndDisplayTracks
-			let tracksInNewPlaylist;
-			data.items.forEach(function(names, index) {
-				tracksInNewPlaylist += `
-					<ul class="list-group list-group-flush">
-						<li class="list-group-item" name="trackTitles" trackId="${names.track.id}" explicit="${names.track.explicit}">
-							${index + 1}. ${names.track.name}
-						</li>
-					</ul>
-				`;
-			});
-
-			document.getElementById(
-				'tracksInNewPlaylist'
-			).innerHTML = tracksInNewPlaylist;
-			document.getElementById(
-				'numberOfSongsAfterCleanified'
-			).innerHTML = `(${data.total} total)`;
-		});
-	}, 3000);
-}
-
-function addTracksIntoCleanfiedPlaylist(playlistID, cleanTracks) {
-	// `https://api.spotify.com/v1/playlists/5U74wGWvE7pepqLyYSklT1/tracks`,
-	fetch(`https://api.spotify.com/v1/playlists/${playlistID}/tracks`, {
-		method: 'POST',
-		body: JSON.stringify({
-			uris: cleanTracks
-		}),
-		headers: jsonHeaders
-	})
-	.then(res => res.json());
-}
-
-/** Add all of the explicit songs you want to look for into an array */
+/**
+ * Add all of the explicit songs you want to look for into an array.
+ * @param {string} checkedPlaylistID 
+ * @param {string} newPlaylistID 
+ */
 function findCleanVersionOfSongs(checkedPlaylistID, newPlaylistID) {
 	fetch(`https://api.spotify.com/v1/playlists/${checkedPlaylistID}/tracks`, {
 		headers: jsonHeaders
 	})
 	.then(res => res.json())
-	.then(data => {
-		//let explicitTracks = [];
-		data.items.forEach((names) => {
-			if (names.track.explicit)
-				// TODO: Find a better method of finding the clean track;
-				// TODOOOOOO -> Roll with this, go thru results and see if
-				// song name w/ non-explicit checker works
-				searchForSong(names.track.name, newPlaylistID);
-				//explicitTracks.push(`${names.track.name} Clean`);
-		});
-
-		//for (let i = 0; i < explicitTracks.length; i++)
-			//searchForSong(explicitTracks[i], newPlaylistID);
-	});
-}
-
-// TODO: See if I can avoid this shitty playlist method and instead directly
-// search for the song by the same artist and select which of the two songs
-// is not the explicit, if there are two results.
-function searchForSong(songTitle, newPlaylistID) {
-	fetch(`https://api.spotify.com/v1/search?q=${songTitle}&type=playlist`, {
-		headers: jsonHeaders
-	})
-	.then(res => res.json())
-	.then(data => {
-		if (data.playlists.items.length == 0) return;
-
-		theRandomPlaylistWithCleanSongID = data.playlists.items[0].id;
-		getFirstSongInPlaylist(
-			theRandomPlaylistWithCleanSongID,
-			songTitle,
-			newPlaylistID
-		);
-	});
-}
-
-// TODO: Include album covers with names.track.album.images[2], and can
-// link to the official song with names.track.external_urls.spotify on
-// top of displaying a preview with names.track.preview_url. Can get extra
-// fancy with it and include popularity with names.track.popularity if desired.
-function getFirstSongInPlaylist(playlistID, songTitle, newPlaylistID) {
-	fetch(`https://api.spotify.com/v1/playlists/${playlistID}/tracks`, {
-		headers: jsonHeaders
-	})
-	.then(res => res.json())
-	.then(data => {
-		console.log("getFirstSongInPlaylist data:"/*, data*/);
-
+	.then(async (data) => {
+		// TODO: Add bottlenecking here if absolutely necessary
 		let cleanTracks = [];
-		data.items.forEach(function(names) {
-			//console.log("Track:", names.track);
-			//console.log(`TRACK NAME: ${names.track.name}, SLICE: ${songTitle.slice(0, -6)}`);
-			if (
-				!names.track.explicit &&
-				// TODO: Change this part as well, invalid assumption;
-				// IDEA: Check the artist here instead?
-				names.track.name === songTitle.slice(0, -6)
-			) {
-				console.log("PUSHING TRACK TO PLAYLIST:", names.track);
-				cleanTracks.push('spotify:track:' + names.track.id);
+		for (const item of data.items) {
+			// https://www.coreycleary.me/why-does-async-await-in-a-foreach-not-actually-await
+			const track = item.track;
+			if (track.explicit) {
+				const cleanVersionOfSong = await searchForSong(track.name, track.artists[0].name);
+				if (cleanVersionOfSong) cleanTracks.push(cleanVersionOfSong);
 			}
+
+			// Every 50 clean songs, add them to the playlist and reset the clean queue
+			if (cleanTracks.length > 50) {
+				await addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
+				cleanTracks = [];
+			}
+		}
+
+		// Catch any stragglers after uploading clean songs in batches of 50
+		if (cleanTracks.length > 0)
+			await addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
+
+		getAfterCleanified(newPlaylistID);
+	});
+}
+
+/**
+ * Search Spotify for the song name and artist name, then iterate over
+ * the results looking for the first non-explicit match.
+ * @param {string} songTitle - Title of the song.
+ * @param {string} artistName - Name of the primary artist of the song.
+ * @returns {string|undefined} - Track string for clean version of song,
+ * or null if a clean version cannot be found.
+ */
+async function searchForSong(songTitle, artistName) {
+	let url = `https://api.spotify.com/v1/search?q=${songTitle + " " + artistName}&type=track`;
+	const res = await axios({
+		url: url,
+		headers: jsonHeaders
+	});
+
+	let returnValue = null;
+	await res.data.tracks.items.forEach(function(track) {
+		if (!track.explicit && track.name === songTitle)
+			returnValue = 'spotify:track:' + track.id;
+	});
+
+	return returnValue;
+}
+
+/**
+ * Pushes the array of clean tracks to the new Spotify playlist,
+ * up to 100 at a time.
+ * @param {string} newPlaylistID - newly created playlist ID on Spotify
+ * @param {array} cleanTracks - array of clean songs to be added
+ * to the specified new playlist.
+ */
+async function addTracksToCleanPlaylist(newPlaylistID, cleanTracks) {
+	const url = `https://api.spotify.com/v1/playlists/${newPlaylistID}/tracks`;
+	await axios({
+		url: url,
+		method: 'post',
+		data: JSON.stringify({
+			uris: cleanTracks
+		}),
+		headers: jsonHeaders
+	});
+}
+
+/**
+ * Retrieve and display the tracks from the newly created
+ * clean playlist.
+ * @param {string} newPlaylistID - newly created playlist ID on Spotify
+ */
+function getAfterCleanified(newPlaylistID) {
+	// TODO: Clear the HTML when starting new playlist, and add loading icon
+
+	// https://api.spotify.com/v1/playlists/71GcVkQyHGke5ZIoOto5uI/tracks?offset=0&limit=100
+	fetch(`https://api.spotify.com/v1/playlists/${newPlaylistID}/tracks`, {
+		headers: jsonHeaders
+	})
+	.then(res => res.json())
+	.then(data => {
+		// TODO: Also paginate, same as getAndDisplayTracks
+		let tracksInNewPlaylist;
+		data.items.forEach(function(names, index) {
+			tracksInNewPlaylist += `
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item" name="trackTitles" trackId="${names.track.id}" explicit="${names.track.explicit}">
+						${index + 1}. ${names.track.name}
+					</li>
+				</ul>
+			`;
 		});
-		addTracksIntoCleanfiedPlaylist(newPlaylistID, cleanTracks);
+
+		document.getElementById(
+			'tracksInNewPlaylist'
+		).innerHTML = tracksInNewPlaylist;
+		document.getElementById(
+			'numberOfSongsAfterCleanified'
+		).innerHTML = `(${data.total} total)`;
 	});
 }

@@ -7,10 +7,11 @@ require('dotenv').config();
 const PORT = process.env.PORT || 3000; // Heroku or local
 const my_client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
-const redirect_uri = process.env.PORT ?
-	'https://smoke-pit-playlist.herokuapp.com/callback'
-	:
-	'http://localhost:3000/callback';
+const base_uri = process.env.PORT ?
+'https://smoke-pit-playlist.herokuapp.com'
+:
+'http://localhost:3000';
+const redirect_uri = base_uri + '/callback';
 
 app
 	.use(express.static(path.join(__dirname, '../public')))
@@ -54,10 +55,7 @@ app
 		};
 		request.post(authOptions, function(error, response, body) {
 			var access_token = body.access_token;
-			const uri = process.env.PORT ?
-				'https://smoke-pit-playlist.herokuapp.com/home'
-				:
-				'http://localhost:3000/home';
+			const uri = base_uri + '/home';
 			res.redirect(uri + '?access_token=' + access_token);
 		});
 	})
