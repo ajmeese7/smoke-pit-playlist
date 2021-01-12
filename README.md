@@ -6,12 +6,12 @@ Clean up Spotify playlists for smoke pit usage.
 smoke-pit-playlist converts your explicit Spotify playlists into clean Spotify playlists, 
 so you can listen to your favorite music when your NCOs are around!
 
-### How to run it:
+## How to run it:
 
 1. Login to your [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/applications)
-2. Create a "new app" and record your Client ID and Client Secret
-3. Go to "edit settings" within your project and set the Redirect URI to http://localhost:3000/callback and save
-4. Clone this github repo or download the zip file. This example saves it to your desktop:
+2. Create a "New App" and record your Client ID and Client Secret
+3. Go to "Edit Settings" within your project and set the Redirect URI to http://localhost:3000/callback and save
+4. Clone this GitHub repo or download the ZIP file. This example saves it to your desktop:
 
 ```
 cd Desktop
@@ -44,6 +44,13 @@ CLIENT_SECRET=YOURCLIENTSECRET
 ### How it works:
 
 Cleanify sends a request to Spotify's API for each song in the selected playlist with " clean" appended at the end. Often times, users have created a playlist with the Clean version of that song inside of it, so it shows at the top of the search results. Cleanify then compares each song in this recenetly searched for playlist to the song that the user has in their own playlist, and adds it to a new 'Cleanified' playlist if it is both non-explicit and has the same name. There is no method to ensure all songs in the playlist have a clean version, but using Cleanify gives you the best chance at finding the clean version if it is there, and removes it if it can't find the clean version of the song. This will make it so when you want to listen to your playlist around your parents, the songs will not have swear words :)
+
+## Troubleshooting
+### 401 Errors
+When you link your GitHub repository to a Heroku instance, be sure to 
+copy your local `.env` variables to the `Config Vars` section of the
+Heroku settings. If you don't, you will experience lots of 401 errors
+in your console.
 
 ### Credit
 
