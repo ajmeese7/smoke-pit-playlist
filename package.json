@@ -1,0 +1,29 @@
+{
+  "name": "smoke-pit-playlist",
+  "version": "1.0.0",
+  "description": "Clean up Spotify playlists for smoke pit usage.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajmeese7/smoke-pit-playlist.git"
+  },
+  "author": "Aaron Meese",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ajmeese7/smoke-pit-playlist/issues"
+  },
+  "homepage": "https://github.com/ajmeese7/smoke-pit-playlist#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "is": "^3.3.0",
+    "query-string": "^6.13.1",
+    "querystring": "^0.2.0",
+    "request": "^2.88.2"
+  }
+}
