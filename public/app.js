@@ -136,14 +136,17 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 		headers: jsonHeaders
 	})
 	.then(res => res.json())
-	.then(async (data) => {
+	.then(data => {
 		// TODO: Figure out where the hell the undefined text is coming from and
 		// what it is supposed to say
-		let cleanTracks = [];
+		let finalPlaylistArray = new Array(data.items.length);
+		let dirtyTracks = [];
 		let tracksInPlaylist, pageNumber = 1;
 		data.items.forEach(function(names, index) {
 			if (!names.track.explicit)
-				cleanTracks.push('spotify:track:' + names.track.id);
+				finalPlaylistArray[index] = 'spotify:track:' + names.track.id;
+			else
+				dirtyTracks.push({index: index, track: names.track});
 
 			// TODO: Stop this at 20, then have a "Show more..." pagination button
 			if (index % 20 == 0) pageNumber++;
@@ -162,36 +165,28 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 		).innerHTML = `(${data.total} total)`;
 
 		spinner.style.display = 'none';
-		await addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
-		findCleanVersionOfSongs(checkedPlaylistID, newPlaylistID);
+		findCleanVersionOfSongs(dirtyTracks, finalPlaylistArray, newPlaylistID);
 	});
 }
 
 /**
  * Add all of the explicit songs you want to look for into an array.
- * @param {string} checkedPlaylistID 
- * @param {string} newPlaylistID 
+ * @param {array} dirtyTracks - song objects that need to be cleaned.
+ * @param {array} finalPlaylistArray - array of the final playlist.
+ * @param {string} newPlaylistID - Spotify ID of the new clean playlist.
  */
-function findCleanVersionOfSongs(checkedPlaylistID, newPlaylistID) {
-	fetch(`https://api.spotify.com/v1/playlists/${checkedPlaylistID}/tracks`, {
-		headers: jsonHeaders
-	})
-	.then(res => res.json())
-	.then(async (data) => {
-		// TODO: Add bottlenecking here if absolutely necessary
-		let cleanTracks = [];
-		for (const item of data.items) {
-			// https://www.coreycleary.me/why-does-async-await-in-a-foreach-not-actually-await
-			const track = item.track;
-			if (track.explicit) {
-				const cleanVersionOfSong = await searchForSong(track.name, track.artists[0].name);
-				if (cleanVersionOfSong) cleanTracks.push(cleanVersionOfSong);
-			}
-		}
+async function findCleanVersionOfSongs(dirtyTracks, finalPlaylistArray, newPlaylistID) {
+	for (const songObject of dirtyTracks) {
+		const track = songObject.track;
+		const cleanVersionOfSong = await searchForSong(track.name, track.artists[0].name);
+		finalPlaylistArray[songObject.index] = cleanVersionOfSong;
+	}
 
-		await addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
-		getAfterCleanified(newPlaylistID);
-	});
+	// Clear all null values, leaving only clean versions of
+	// songs in their original order.
+	finalPlaylistArray = finalPlaylistArray.filter(Boolean);
+	await addTracksToCleanPlaylist(newPlaylistID, finalPlaylistArray);
+	getAfterCleanified(newPlaylistID);
 }
 
 /**
@@ -271,15 +266,15 @@ function getAfterCleanified(newPlaylistID) {
 	.then(data => {
 		// TODO: Also paginate, same as getAndDisplayTracks
 		let tracksInNewPlaylist;
-		data.items.forEach(function(names, index) {
+		data.items.forEach((names, index) =>
 			tracksInNewPlaylist += `
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" name="trackTitles" trackId="${names.track.id}" explicit="${names.track.explicit}">
 						${index + 1}. ${names.track.name}
 					</li>
 				</ul>
-			`;
-		});
+			`
+		);
 
 		document.getElementById(
 			'tracksInNewPlaylist'
