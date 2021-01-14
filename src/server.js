@@ -30,11 +30,9 @@ app
 		res.redirect(
 			'https://accounts.spotify.com/authorize' +
 				'?response_type=code' +
-				'&client_id=' +
-				my_client_id +
+				'&client_id=' + my_client_id +
 				(scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
-				'&redirect_uri=' +
-				encodeURIComponent(redirect_uri)
+				'&redirect_uri=' + encodeURIComponent(redirect_uri)
 		);
 	})
 	.get('/callback', function(req, res) {
@@ -54,7 +52,7 @@ app
 			json: true
 		};
 		request.post(authOptions, function(error, response, body) {
-			var access_token = body.access_token;
+			const access_token = body.access_token;
 			const uri = base_uri + '/home';
 			res.redirect(uri + '?access_token=' + access_token);
 		});

@@ -9,7 +9,6 @@ const jsonHeaders = {
 	'Content-Type': 'application/json'
 };
 
-// TODO: Break the page if this returns undefined, redirect to main URL
 getSpotifyUsername();
 getPlaylists();
 
@@ -25,11 +24,23 @@ function getSpotifyUsername() {
 		headers: plainHeaders
 	})
 	.then(res => res.json())
-	.then(
-		data =>
-			(document.getElementById('theUsersName').innerHTML =
-				`Signed in as <strong>${data.display_name}</strong`)
-	);
+	.then(data => {
+		if (!data || !data.display_name) {
+			console.error(
+				"One of the following occured:\n" +
+				"1) You tried to access the home page without logging in\n" +
+				"2) You were idle for too long and your access token expired\n" +
+				"3) Your login failed for some other reason\n" +
+				"As a result, the site is going to redirect you back to the " +
+				"login page. Please try again, and make an issue on the " +
+				"repository if the problem persists!"
+			);
+			return window.location.pathname = '/index.html';
+		}
+
+		document.getElementById('theUsersName').innerHTML =
+			`Signed in as <strong>${data.display_name}</strong`;
+	});
 }
 
 /** Gets all playlists that the user follows. */

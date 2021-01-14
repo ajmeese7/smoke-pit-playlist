@@ -8,12 +8,8 @@
 	<title>Home: smoke-pit-playlist</title>
 
 	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-	<link
-		rel="stylesheet"
-		href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-		integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-		crossorigin="anonymous"
-	/>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
+		integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 
 	<style>
 		h6 {
@@ -45,12 +41,10 @@
 </head>
 
 <body>
-	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
 	<div class="card text-center" style="margin-top:50px">				
 		<div class="card-body">
-			<h1 class="card-title"><a href="http://localhost:3000/">smoke-pit-playlist</a></h1>
-			<h5 class="card-text">Select a playlist to clean</h5>
+			<h1 class="card-title"><a href="index.html">smoke-pit-playlist</a></h1>
+			<h5 class="card-text">Select a playlist to smoke to 🚬</h5>
 		</div>
 		<p id="theUsersName">Signing in...</p>
 	</div>
@@ -62,9 +56,9 @@
 					<div class="card-header">
 						<h3 style="text-align:center">Playlists</h3>
 					</div>
-					<div id="playlistItems"  ></div>
+					<div id="playlistItems"></div>
 				</div>
-				<div class="p-2" >
+				<div class="p-2">
 					<input
 						id="submit"
 						type="submit"
@@ -74,7 +68,6 @@
 					<input
 						id="delete"
 						type="submit"
-
 						class="btn btn-danger"
 						value="Delete Playlist"
 					/>
@@ -82,22 +75,32 @@
 			</div>
 			<div class="col-sm">
 				<div class="card" style="width: 20em; margin-bottom:100px" >
-						<div class="card-header">
-							<h3 style="text-align:center">Before Cleanified
-								<div id="numberOfSongsBeforeCleanified"></div>
-							</h3>
+					<div class="card-header">
+						<h3 style="text-align:center">Before Cleanified
+							<div id="numberOfSongsBeforeCleanified"></div>
+						</h3>
+					</div>
+					<div id="tracksInPlaylist"></div>
+					<div class="d-flex justify-content-center">
+						<div class="spinner-border" role="status" style="display:none;">
+							<span class="sr-only">Loading...</span>
 						</div>
-						<div id="tracksInPlaylist"></div>
+					</div>
 				</div>
 			</div>
 			<div class="col-sm">
 				<div class="card" style="width: 20em;margin-bottom:100px" >
 					<div class="card-header">
-						<h3 style="text-align:center; " >After Cleanified
+						<h3 style="text-align:center;">After Cleanified
 							<div id="numberOfSongsAfterCleanified"></div>
 						</h3>
 					</div>
 					<div id="tracksInNewPlaylist"></div>
+					<div class="d-flex justify-content-center">
+						<div class="spinner-border" role="status" style="display:none;">
+							<span class="sr-only">Loading...</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
