@@ -68,5 +68,3 @@ in the process.
    - getAfterCleanified; will become even more important when weaving playlists.
 - Test with a HUGE playlist to see if timeout errors are still an issue, in which case
 bottlenecking should be implemented.
-- Switch checking on number of songs to addTracksToCleanPlaylist, as it will be cleaner
-and make more sense in the long run.

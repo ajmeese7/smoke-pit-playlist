@@ -126,7 +126,7 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 		headers: jsonHeaders
 	})
 	.then(res => res.json())
-	.then(data => {
+	.then(async (data) => {
 		// TODO: Figure out where the hell the undefined text is coming from and
 		// what it is supposed to say
 		let cleanTracks = [];
@@ -151,8 +151,7 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 			'numberOfSongsBeforeCleanified'
 		).innerHTML = `(${data.total} total)`;
 
-		// TODO: Make sure less than 100, or break into batches first
-		addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
+		await addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
 		findCleanVersionOfSongs(checkedPlaylistID, newPlaylistID);
 	});
 }
@@ -177,18 +176,9 @@ function findCleanVersionOfSongs(checkedPlaylistID, newPlaylistID) {
 				const cleanVersionOfSong = await searchForSong(track.name, track.artists[0].name);
 				if (cleanVersionOfSong) cleanTracks.push(cleanVersionOfSong);
 			}
-
-			// Every 50 clean songs, add them to the playlist and reset the clean queue
-			if (cleanTracks.length > 50) {
-				await addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
-				cleanTracks = [];
-			}
 		}
 
-		// Catch any stragglers after uploading clean songs in batches of 50
-		if (cleanTracks.length > 0)
-			await addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
-
+		await addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
 		getAfterCleanified(newPlaylistID);
 	});
 }
@@ -218,22 +208,38 @@ async function searchForSong(songTitle, artistName) {
 }
 
 /**
- * Pushes the array of clean tracks to the new Spotify playlist,
- * up to 100 at a time.
+ * Pushes the array of clean tracks to the new Spotify playlist.
  * @param {string} newPlaylistID - newly created playlist ID on Spotify
  * @param {array} cleanTracks - array of clean songs to be added
  * to the specified new playlist.
  */
 async function addTracksToCleanPlaylist(newPlaylistID, cleanTracks) {
+	// Splits the array of cleanTracks into smaller arrays of a maximum
+	// of 50 elements, to upload in batches. Method used:
+	// https://stackoverflow.com/a/37826698/6456163
+	if (cleanTracks.length == 0) return;
+	const chunkSize = 50;
+	const chunks = cleanTracks.reduce((resultArray, item, index) => { 
+		const chunkIndex = Math.floor(index / chunkSize);
+		if (!resultArray[chunkIndex])
+			// Start a new chunk
+			resultArray[chunkIndex] = [];
+	
+		resultArray[chunkIndex].push(item);
+		return resultArray;
+	}, []);
+
 	const url = `https://api.spotify.com/v1/playlists/${newPlaylistID}/tracks`;
-	await axios({
-		url: url,
-		method: 'post',
-		data: JSON.stringify({
-			uris: cleanTracks
-		}),
-		headers: jsonHeaders
-	});
+	for (const chunk of chunks) {
+		await axios({
+			url: url,
+			method: 'post',
+			data: JSON.stringify({
+				uris: chunk
+			}),
+			headers: jsonHeaders
+		});
+	}
 }
 
 /**
