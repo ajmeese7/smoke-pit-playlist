@@ -45,6 +45,10 @@ function getSpotifyUsername() {
 
 /** Gets all playlists that the user follows. */
 function getPlaylists() {
+	// Show loader until data is all displayed
+	let spinner = document.getElementsByClassName('spinner-border')[0];
+	spinner.style.display = 'block';
+
 	fetch('https://api.spotify.com/v1/me/playlists', {
 		headers: plainHeaders
 	})
@@ -62,6 +66,7 @@ function getPlaylists() {
 			`;
 		});
 		document.getElementById('playlistItems').innerHTML = playlistItems;
+		spinner.style.display = 'none';
 	});
 }
 
@@ -122,6 +127,11 @@ function createCleanifiedPlaylist() {
  * @param {string} newPlaylistID 
  */
 function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
+	// Show loader until data is all displayed
+	let spinner = document.getElementsByClassName('spinner-border')[1];
+	spinner.style.display = 'block';
+	clearPreviousResults();
+
 	fetch(`https://api.spotify.com/v1/playlists/${checkedPlaylistID}/tracks`, {
 		headers: jsonHeaders
 	})
@@ -151,6 +161,7 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 			'numberOfSongsBeforeCleanified'
 		).innerHTML = `(${data.total} total)`;
 
+		spinner.style.display = 'none';
 		await addTracksToCleanPlaylist(newPlaylistID, cleanTracks);
 		findCleanVersionOfSongs(checkedPlaylistID, newPlaylistID);
 	});
@@ -248,7 +259,9 @@ async function addTracksToCleanPlaylist(newPlaylistID, cleanTracks) {
  * @param {string} newPlaylistID - newly created playlist ID on Spotify
  */
 function getAfterCleanified(newPlaylistID) {
-	// TODO: Clear the HTML when starting new playlist, and add loading icon
+	// Show loader until data is all displayed
+	let spinner = document.getElementsByClassName('spinner-border')[2];
+	spinner.style.display = 'block';
 
 	// https://api.spotify.com/v1/playlists/71GcVkQyHGke5ZIoOto5uI/tracks?offset=0&limit=100
 	fetch(`https://api.spotify.com/v1/playlists/${newPlaylistID}/tracks`, {
@@ -274,5 +287,15 @@ function getAfterCleanified(newPlaylistID) {
 		document.getElementById(
 			'numberOfSongsAfterCleanified'
 		).innerHTML = `(${data.total} total)`;
+		spinner.style.display = 'none';
 	});
+}
+
+/** Removes all <ul> elements in the second two columns. */
+function clearPreviousResults() {
+	// https://stackoverflow.com/a/46424870/6456163
+	let tracksInPlaylistElem = document.getElementById('tracksInPlaylist');
+	tracksInPlaylistElem.querySelectorAll('ul').forEach(e => e.parentNode.removeChild(e));
+	let tracksInNewPlaylistElem = document.getElementById('tracksInNewPlaylist');
+	tracksInNewPlaylistElem.querySelectorAll('ul').forEach(e => e.parentNode.removeChild(e));
 }
