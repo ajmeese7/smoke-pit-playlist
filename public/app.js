@@ -15,9 +15,6 @@ getPlaylists();
 let submit = document.getElementById('submit');
 submit.addEventListener('click', createCleanifiedPlaylist, false);
 
-let deleted = document.getElementById('delete');
-deleted.addEventListener('click', deletePlaylist, false);
-
 /** Gets Spotify username of the current user's account. */
 function getSpotifyUsername() {
 	fetch('https://api.spotify.com/v1/me', {
@@ -70,35 +67,6 @@ function getPlaylists() {
 	});
 }
 
-/**
- * Deletes the selected ORIGINAL playlist, NOT the clean version.
- * TODO: Remove this feature and instead apply it to the newly
- * created playlist, nobody should want to use this tool to
- * delete playlists.
- */
-function deletePlaylist() {
-	const [checkedPlaylistID, checkedPlaylistName] = getCheckedPlaylistInfo();
-	fetch(`https://api.spotify.com/v1/playlists/${checkedPlaylistID}/followers`, {
-		method: 'DELETE',
-		headers: plainHeaders
-	})
-	.then(res => res.json());
-
-	location.reload();
-	alert(`Deleted playlist named: ${checkedPlaylistName}`);
-}
-
-/**
- * Gathers the information for the selected user's playlist.
- * @returns {array} [playlist ID, playlist name]
- */
-function getCheckedPlaylistInfo() {
-	let playlists = document.getElementsByName('playlistTitles');
-	for (let i = 0; i < playlists.length; i++)
-		if (playlists[i].checked)
-			return [playlists[i].id, playlists[i].value];
-}
-
 /** 
  * Once the "Cleanify Playlist" button is pressed, this function
  * creates a new playlist based off of the existing playlists name, and
@@ -119,6 +87,17 @@ function createCleanifiedPlaylist() {
 	})
 	.then(res => res.json())
 	.then(data => getAndDisplayTracks(checkedPlaylistID, data.id));
+}
+
+/**
+ * Gathers the information for the selected user's playlist.
+ * @returns {array} [playlist ID, playlist name]
+ */
+function getCheckedPlaylistInfo() {
+	let playlists = document.getElementsByName('playlistTitles');
+	for (let i = 0; i < playlists.length; i++)
+		if (playlists[i].checked)
+			return [playlists[i].id, playlists[i].value];
 }
 
 /**
