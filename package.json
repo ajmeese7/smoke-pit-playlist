@@ -2,9 +2,10 @@
   "name": "smoke-pit-playlist",
   "version": "1.0.0",
   "description": "Clean up Spotify playlists for smoke pit usage.",
-  "main": "app.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "node server.js",
+    "devstart": "nodemon server.js -e css,html,js,json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,5 +22,8 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
   }
 }
