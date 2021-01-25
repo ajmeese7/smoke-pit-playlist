@@ -50,21 +50,42 @@ function getPlaylists() {
 		headers: plainHeaders
 	})
 	.then(res => res.json())
-	.then(data => {
+	.then(async data => {
+		// TODO: Gather all the images async simultaneously, then continue;
+			// IDEA: Can go back over list of IDs and change src attribute
 		let playlistItems = '';
-		data.items.forEach(function(names) {
+		for (const playlist of data.items) {
+			let imageURL = await getPlaylistImage(playlist.id);
 			playlistItems += `
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item">
-						<input type="radio" name="playlistTitles" id="${names.id}" value="${names.name}">
-						${names.name}
+						<input type="radio" name="playlistTitles" id="${playlist.id}" value="${playlist.name}">
+						<img class="playlistCover" src="${imageURL}" />
+						<p>${playlist.name}</p>
 					</li>
 				</ul>
 			`;
-		});
+		};
 		document.getElementById('playlistItems').innerHTML = playlistItems;
 		spinner.style.display = 'none';
 	});
+}
+
+/**
+ * Gets the cover image of the specified playlist, if it exists.
+ * @param {string} playlistId 
+ * @returns {string}
+ */
+async function getPlaylistImage(playlistId) {
+	const getImageURL = async () => {
+		const res = await axios({
+			url: `https://api.spotify.com/v1/playlists/${playlistId}/images`,
+			headers: plainHeaders
+		});
+    return res.data[0].url;
+  }
+
+  return (async () => await getImageURL() )();
 }
 
 /** 
@@ -135,7 +156,7 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 			tracksInPlaylist += `
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" name="trackTitles" trackId="${names.track.id}" explicit="${names.track.explicit}">
-						${index + 1}. ${names.track.name}
+						<p>${index + 1}. ${names.track.name}</p>
 					</li>
 				</ul>
 			`;

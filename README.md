@@ -65,3 +65,6 @@ in the process.
 - Test with a HUGE playlist to see if timeout errors are still an issue, in which case
 bottlenecking should be implemented.
 - Don't display playlist in "Playlists" if it has already been cleaned.
+- Implement Axios error handling.
+	- https://stackoverflow.com/a/58417391/6456163
+- Make tall pictures cover properly for playlist images.
