@@ -1,6 +1,17 @@
 p {
 	font-family: 'Montserrat', sans-serif;
 }
+a {
+	color: black;
+}
+a:hover {
+	color: #1DB954;
+	text-decoration: none;
+}
+.btn-success {
+	background-color: #1DB954;
+	border-color: #1DB954;
+}
 
 #container {
 	width: 100%;
@@ -8,7 +19,7 @@ p {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: #1db954;
+	background-color: #1DB954;
 }
 .card.text-center {
 	margin-top: 50px;

@@ -148,22 +148,15 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 		let finalPlaylistArray = new Array(data.items.length);
 		let dirtyTracks = [];
 		let tracksInPlaylist, pageNumber = 1;
-		data.items.forEach(function(names, index) {
-			if (!names.track.explicit)
-				finalPlaylistArray[index] = 'spotify:track:' + names.track.id;
+		data.items.forEach(function(song, index) {
+			if (!song.track.explicit)
+				finalPlaylistArray[index] = 'spotify:track:' + song.track.id;
 			else
-				dirtyTracks.push({index: index, track: names.track});
+				dirtyTracks.push({index: index, track: song.track});
 
 			// TODO: Stop this at 20, then have a "Show more..." pagination button
 			if (index % 20 == 0) pageNumber++;
-			tracksInPlaylist += `
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item" name="trackTitles" trackId="${names.track.id}" explicit="${names.track.explicit}">
-						<img class="coverImage" src="${names.track.album.images[2].url}" />
-						${index + 1}. ${names.track.name}
-					</li>
-				</ul>
-			`;
+			tracksInPlaylist += getSongHTML(song, index);
 		});
 
 		document.getElementById('tracksInPlaylist').innerHTML = tracksInPlaylist;
@@ -273,15 +266,8 @@ function getAfterCleanified(newPlaylistID) {
 	.then(data => {
 		// TODO: Also paginate, same as getAndDisplayTracks
 		let tracksInNewPlaylist;
-		data.items.forEach((names, index) =>
-			tracksInNewPlaylist += `
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item" name="trackTitles" trackId="${names.track.id}" explicit="${names.track.explicit}">
-						<img class="coverImage" src="${names.track.album.images[2].url}" />
-						${index + 1}. ${names.track.name}
-					</li>
-				</ul>
-			`
+		data.items.forEach((song, index) =>
+			tracksInNewPlaylist += getSongHTML(song, index)
 		);
 
 		document.getElementById(
@@ -292,6 +278,24 @@ function getAfterCleanified(newPlaylistID) {
 		).innerHTML = `(${data.total} total)`;
 		spinner.style.display = 'none';
 	});
+}
+
+/**
+ * Returns the HTML to be displayed in the results for the
+ * specified song object.
+ * @param {object} song - the song object from the Spotify API
+ * @param {integer} index - position of song on the playlist
+ */
+function getSongHTML(song, index) {
+	return `
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item" name="trackTitles" trackId="${song.track.id}" explicit="${song.track.explicit}">
+				<img class="coverImage" src="${song.track.album.images[2].url}" />
+				<span style="margin-right: 5px;">${index + 1}.</span>
+				<a href="${song.track.external_urls.spotify}">${song.track.name}</a>
+			</li>
+		</ul>
+	`;
 }
 
 /** Removes all <ul> elements in the second two columns. */

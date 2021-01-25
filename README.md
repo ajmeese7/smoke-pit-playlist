@@ -53,10 +53,7 @@ Heroku settings. If you don't, you will experience lots of 401 errors
 in your console due to the lack of valid API credentials.
 
 ### TODOs
-- Can link to the official song with names.track.external_urls.spotify on
-top of displaying a preview with names.track.preview_url.
-- Can get extra fancy with it and include popularity with names.track.popularity 
-if desired.
+- Display a preview with names.track.preview_url.
 - Add a feature to combine multiple playlists into one, removing duplicate IDs
 in the process.
 	- Switch from radio buttons to checkboxes if going with
