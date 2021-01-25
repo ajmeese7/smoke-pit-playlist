@@ -75,6 +75,7 @@ function getPlaylists() {
  */
 function createCleanifiedPlaylist() {
 	const [checkedPlaylistID, checkedPlaylistName] = getCheckedPlaylistInfo();
+	if (!checkedPlaylistID) return;
 
 	// Creates new playlist
 	fetch('https://api.spotify.com/v1/me/playlists', {
@@ -98,6 +99,8 @@ function getCheckedPlaylistInfo() {
 	for (let i = 0; i < playlists.length; i++)
 		if (playlists[i].checked)
 			return [playlists[i].id, playlists[i].value];
+
+	return [null, null];
 }
 
 /**
