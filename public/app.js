@@ -143,11 +143,9 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 	})
 	.then(res => res.json())
 	.then(data => {
-		// TODO: Figure out where the hell the undefined text is coming from and
-		// what it is supposed to say
 		let finalPlaylistArray = new Array(data.items.length);
 		let dirtyTracks = [];
-		let tracksInPlaylist, pageNumber = 1;
+		let tracksInPlaylist = "", pageNumber = 1;
 		data.items.forEach(function(song, index) {
 			if (!song.track.explicit)
 				finalPlaylistArray[index] = 'spotify:track:' + song.track.id;
@@ -265,7 +263,7 @@ function getAfterCleanified(newPlaylistID) {
 	.then(res => res.json())
 	.then(data => {
 		// TODO: Also paginate, same as getAndDisplayTracks
-		let tracksInNewPlaylist;
+		let tracksInNewPlaylist = "";
 		data.items.forEach((song, index) =>
 			tracksInNewPlaylist += getSongHTML(song, index)
 		);
