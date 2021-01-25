@@ -60,7 +60,7 @@ function getPlaylists() {
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item">
 						<input type="radio" name="playlistTitles" id="${playlist.id}" value="${playlist.name}">
-						<img class="playlistCover" src="${imageURL}" />
+						<img class="coverImage" src="${imageURL}" />
 						<p>${playlist.name}</p>
 					</li>
 				</ul>
@@ -156,7 +156,8 @@ function getAndDisplayTracks(checkedPlaylistID, newPlaylistID) {
 			tracksInPlaylist += `
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" name="trackTitles" trackId="${names.track.id}" explicit="${names.track.explicit}">
-						<p>${index + 1}. ${names.track.name}</p>
+						<img class="coverImage" src="${names.track.album.images[2].url}" />
+						${index + 1}. ${names.track.name}
 					</li>
 				</ul>
 			`;
@@ -273,6 +274,7 @@ function getAfterCleanified(newPlaylistID) {
 			tracksInNewPlaylist += `
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" name="trackTitles" trackId="${names.track.id}" explicit="${names.track.explicit}">
+						<img class="coverImage" src="${names.track.album.images[2].url}" />
 						${index + 1}. ${names.track.name}
 					</li>
 				</ul>

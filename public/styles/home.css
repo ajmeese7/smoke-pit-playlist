@@ -35,7 +35,7 @@ h3 {
 .list-group-item p {
 	margin: 0 !important;
 }
-.playlistCover {
+.coverImage {
 	object-fit: cover;
 	border-radius: 1.25px;
 	margin-left: 5px;

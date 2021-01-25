@@ -53,7 +53,6 @@ Heroku settings. If you don't, you will experience lots of 401 errors
 in your console due to the lack of valid API credentials.
 
 ### TODOs
-- Include album covers with names.track.album.images[2]
 - Can link to the official song with names.track.external_urls.spotify on
 top of displaying a preview with names.track.preview_url.
 - Can get extra fancy with it and include popularity with names.track.popularity 
