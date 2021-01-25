@@ -55,6 +55,9 @@ function getPlaylists() {
 			// IDEA: Can go back over list of IDs and change src attribute
 		let playlistItems = '';
 		for (const playlist of data.items) {
+			// Don't show playlists that have already been cleaned by this software
+			if (playlist.name.includes(" (Clean)")) continue;
+
 			let imageURL = await getPlaylistImage(playlist.id);
 			playlistItems += `
 				<ul class="list-group list-group-flush">

@@ -63,7 +63,7 @@ in the process.
 		the "Combine playlists" idea in getPlaylists().
 - Test with a HUGE playlist to see if timeout errors are still an issue, in which case
 bottlenecking should be implemented.
-- Don't display playlist in "Playlists" if it has already been cleaned.
+- Hide original playlist if a clean version already exists.
 - Implement Axios error handling.
 	- https://stackoverflow.com/a/58417391/6456163
 - Make tall pictures cover properly for playlist images.
