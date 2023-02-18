@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/ajmeese7/smoke-pit-playlist#readme",
   "dependencies": {
-    "dotenv": "^8.2.0",
+    "dotenv": "^8.6.0",
     "express": "^4.17.1",
     "request": "^2.88.2"
   },
